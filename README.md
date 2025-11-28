@@ -10,7 +10,7 @@ Standard LLM integration often feels disconnected from gameplay. This system fix
 
 | **Standard Generative AI** | **Context-Aware System** |
 | :---: | :---: |
-| ![No Context](Images/NoContextMessage.png)<br>Witout quest context the character seems unaware of the world._ | ![With Context](Images/WithContextMessage.png)<br>With the quest "Riders on the Storm" being tracked the character knows the current state of the world._ |
+| ![No Context](Images/NoContextMessage.png)<br>Witout quest context the character seems unaware of the world. | ![With Context](Images/WithContextMessage.png)<br>With the quest "Riders on the Storm" being tracked the character knows the current state of the world. |
 
 
 ## Features & Event Systems
@@ -20,7 +20,7 @@ The system hooks into the `PreventionSystem` to detect changes in police pursuit
 
 | **Low Heat (Level 1)** | **Maximum Heat (Level 5)** |
 | :---: | :---: |
-| ![Heat Level 1](Images/PoliceEventHeatLvl1.png)<br>_Casual warning about minor trouble._ | ![Heat Level 5](Images/PoliceEventHeatLvl5.png)<br>_Urgent, high-stakes reaction._ |
+| ![Heat Level 1](Images/PoliceEventHeatLvl1.png)<br> Casual warning about minor trouble. | ![Heat Level 5](Images/PoliceEventHeatLvl5.png)<br> Urgent, high-stakes reaction. |
 
 To prevent annoyance during minor accidental crimes, the companion's reaction chance scales with the threat level:
   - ★ (1 Star)	20%	Low probability. Minor trouble is often ignored.
@@ -41,6 +41,14 @@ Using a custom **Polling Monitor Pattern** (to bypass native API limitations), t
 Companions will comment on visibility or toxicity, but not every time it sprinkles:
   - Light Rain: 25% Chance to comment.
   - Heavy Storms: 75% Chance to comment (High Priority).
+
+### 3. Location-Based Invitations (Player Location)
+The system tracks V's movement across Night City districts. If you enter a district containing a key location (like a bar associated with a companion), there is a chance they will invite you out. This makes the city feel lived-in and social.
+By hooking to the `PreventionSystem` like the Heat Event,but hooked into `OnDistrictAreaEntered`. Companions will invite you to a bar with a 5% chance.
+
+| **Low Heat (Level 1)** | **Maximum Heat (Level 5)** |
+| :---: | :---: |
+| ![Dark Matter](Images/BarInvitationDarkMatter.png)<br> Companion inviting you to the VIP club. | ![Lizzie's Bar](Images/BarInvitationLizzies.png)<br> Companion noticing you are in Kabuki and inviting you to Lizzie's. |
 
 
 ## Under the Hood: Prompt Engineering
@@ -66,6 +74,12 @@ CURRENT SITUATION: We are currently:Meet with Panam.React to V based on this spe
 ```text
 [INSTRUCTION: You are roleplaying. V just gained police heat. Send V a text message reacting to this.DO NOT output the heat level. DO NOT output your mood. DO NOT output your name. Output ONLY the text message body.
 Context: "Heat 1 – Mild concern. A light, cautious reaction. You notice the trouble but stay composed.Tone: wary, slightly annoyed, or amused, depending on your personality.
+```
+
+### The "District Event" Template
+```text
+[INSTRUCTION: You are roleplaying. V has just entered the district where you where there is a bar.Send V a casual text message inviting them to join you or if they want to hangout in the future for a drink at the bar. Keep it short and natural. Output location name in your setence for V to know where to meet. Output ONLY the text message body.
+Context: Location: Lizzie's Bar (The Mox hangout). Atmosphere: Neon, chaotic, loud braindance music. Tone: Energetic, fun, or cheeky. Mention the vibe.
 ```
 
 ## Core Systems
