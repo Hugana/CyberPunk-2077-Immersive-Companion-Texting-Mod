@@ -475,6 +475,8 @@ public class HttpRequestSystem extends ScriptableSystem {
 
     this.systemPrompt += actionInstructions;
 
+    this.systemPrompt += "DONT FORGET YOU TALK IN THIS LANGUAGE: " + GetPlayerLanguage();
+
     return this.systemPrompt;    
   }
 

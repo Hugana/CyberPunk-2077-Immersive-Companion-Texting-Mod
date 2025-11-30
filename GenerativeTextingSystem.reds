@@ -434,6 +434,28 @@ public class GenerativeTextingSystem extends ScriptableService {
         }
     }
 
+    // Update the "is Typing..." for each language
+    public func GetIsTypingString() -> String {
+        switch GetTextingSystem().language {
+            case PlayerLanguage.English:
+                return "is typing...";
+            case PlayerLanguage.Spanish:
+                return "está escribiendo...";
+            case PlayerLanguage.French:
+                return "écrit...";
+            case PlayerLanguage.German:
+                return "schreibt...";
+            case PlayerLanguage.Italian:
+                return "sta scrivendo...";
+            case PlayerLanguage.Portuguese:
+                return "está digitando...";
+            case PlayerLanguage.Russian:
+                return "печатает...";
+            default:
+                return "is typing...";
+        }
+    }
+
     private func PlaySound(sound: CName) {
         GameObject.PlaySoundEvent(this.player, sound);
     }
@@ -948,7 +970,8 @@ public class GenerativeTextingSystem extends ScriptableService {
 
         let isTyping = new inkText();
         isTyping.SetName(n"isTyping");
-        isTyping.SetText(GetCharacterLocalizedName(this.character) + " is typing");
+
+        isTyping.SetText(GetCharacterLocalizedName(this.character) + this.GetIsTypingString());
         isTyping.SetFontFamily("base\\gameplay\\gui\\fonts\\raj\\raj.inkfontfamily");
         isTyping.SetFontStyle(n"Medium");
         isTyping.SetFontSize(38);
