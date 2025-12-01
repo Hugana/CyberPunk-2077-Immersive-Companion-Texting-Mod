@@ -158,25 +158,60 @@ public class GenerativeTextingSystem extends ScriptableService {
         ConsoleLog("Generative Texting System initialized");
     }
 
-    private func GetWidgetReferences(middleWidgetIndex: Int32) {
+    // Better Widget References Getter 
+    private func GetWidgetReferences(middleWidgetIndex: Int32) -> Void {
         let inkSystem = GameInstance.GetInkSystem();
-        let virtualWindow = inkSystem.GetLayer(n"inkHUDLayer").GetVirtualWindow();
-        let virtualWindowRoot = virtualWindow.GetWidget(0) as inkCanvas;
-        let hudMiddleWidget = virtualWindowRoot.GetWidget(middleWidgetIndex) as inkCanvas;
-        this.parent = hudMiddleWidget.GetWidget(0) as inkCanvas;
-        this.contactListSlot = FindWidgetWithName(this.parent, n"contact_list_slot") as inkCanvas;
-        this.defaultChatUi = FindWidgetWithName(this.parent, n"sms_messenger_slot") as inkCanvas;
-        if !IsDefined(this.contactListSlot) {
-            if middleWidgetIndex < 45 {
-                ConsoleLog("Contact List Slot not found, giving up.");
-                this.disabled = true;
-                return;
-            }
-            ConsoleLog(s"Contact List Slot not found, checking Hud Middle Widget \(middleWidgetIndex - 1)");
-            this.GetWidgetReferences(middleWidgetIndex - 1);
-        } else {
-            this.disabled = false;
+        if !IsDefined(inkSystem) { this.disabled = true; return; }
+
+        let layer = inkSystem.GetLayer(n"inkHUDLayer");
+        if !IsDefined(layer) { this.disabled = true; return; }
+
+        let virtualWindow = layer.GetVirtualWindow();
+        if !IsDefined(virtualWindow) { this.disabled = true; return; }
+
+        // Try virtualWindow.GetWidget(0); fall back to named "Root" if needed.
+        let root0: wref<inkCompoundWidget> = virtualWindow.GetWidget(0) as inkCompoundWidget;
+        if !IsDefined(root0) {
+            root0 = virtualWindow.GetWidgetByPathName(n"Root") as inkCompoundWidget;
         }
+        if !IsDefined(root0) { this.disabled = true; return; }
+        let count: Int32 = root0.GetNumChildren();
+        let mid: wref<inkCompoundWidget>;
+        let i: Int32 = 0;
+        while i < count {
+            let cand: wref<inkCompoundWidget> = root0.GetWidget(i) as inkCompoundWidget;
+            if IsDefined(cand) {
+                let p0: wref<inkCompoundWidget> = cand.GetWidget(0) as inkCompoundWidget;
+                if IsDefined(p0) {
+                    let contactSlot: wref<inkWidget> = FindWidgetWithName(p0, n"contact_list_slot");
+                    if !IsDefined(contactSlot) {
+                        contactSlot = FindWidgetWithName(p0, n"sms_messenger_slot");
+                    }
+                    if IsDefined(contactSlot) {
+                        mid = cand;
+                        break;
+                    }
+                }
+            }
+            i += 1;
+        }
+
+        if IsDefined(mid) {
+            this.parent = mid.GetWidget(0) as inkCanvas;
+            this.contactListSlot = FindWidgetWithName(this.parent, n"contact_list_slot") as inkCanvas;
+            this.defaultChatUi   = FindWidgetWithName(this.parent, n"sms_messenger_slot") as inkCanvas;
+            this.disabled = !IsDefined(this.contactListSlot);
+            return;
+        }
+
+        // Fallback to legacy behavior (index walk) for older/rare layouts.
+        if middleWidgetIndex < 45 {
+            ConsoleLog("Contact List Slot not found, giving up.");
+            this.disabled = true;
+            return;
+        }
+        ConsoleLog(s"Contact List Slot not found via scan, checking Hud Middle Widget \(middleWidgetIndex - 1)");
+        this.GetWidgetReferences(middleWidgetIndex - 1);
     }
 
     // Handle key input events
