@@ -369,37 +369,32 @@ public class GenerativeTextingSystem extends ScriptableService {
             this.PlaySound(n"ui_menu_map_pin_off");
         }
     }
+    
 
     // Handle selecting an NPC
     public func ToggleNpcSelected(value: Bool) {
         if !this.initialized {
             this.InitializeSystem();
         } 
-        this.npcSelected = value;
-        this.callbackSystem.UnregisterCallback(n"Input/Key", this, n"OnKeyInput");
 
+        this.npcSelected = value;
         if this.npcSelected {
             this.callbackSystem.RegisterCallback(n"Input/Key", this, n"OnKeyInput", true)
-                .AddTarget(InputTarget.Key(EInputKey.IK_T))     
-                .AddTarget(InputTarget.Key(EInputKey.IK_C))
-                .AddTarget(InputTarget.Key(EInputKey.IK_R))
-                .AddTarget(InputTarget.Key(EInputKey.IK_Z))
-                .AddTarget(InputTarget.Key(EInputKey.IK_Enter))
-                .AddTarget(InputTarget.Key(EInputKey.IK_Escape))
-                .AddTarget(InputTarget.Key(EInputKey.IK_LeftMouse));
-                 
-                
+                .AddTarget(InputTarget.Key(EInputKey.IK_T));
             if NotEquals(this.lastActiveCharacter, this.character) {
                 this.ResetConversation(false);
                 this.lastActiveCharacter = this.character;
+                
             }
         } else {
+            this.callbackSystem.UnregisterCallback(n"Input/Key", this, n"OnKeyInput");
             this.callbackSystem.RegisterCallback(n"Input/Key", this, n"OnKeyInput", true)
                 .AddTarget(InputTarget.Key(EInputKey.IK_U));
             
             this.callbackSystem.UnregisterCallback(n"Input/Axis", this, n"OnAxisInput");
         }
     }
+    
 
     public func ToggleIsTyping(value: Bool) {
         this.isTyping = value;
@@ -563,6 +558,20 @@ public class GenerativeTextingSystem extends ScriptableService {
                 return " печатает";
             default:
                 return " is typing";
+        }
+    }
+
+    // "Quick Chat" (UI Button Hint)
+    public func GetQuickAccessString() -> String {
+        switch GetTextingSystem().language {
+            case PlayerLanguage.English:    return "Quick Chat";
+            case PlayerLanguage.Spanish:    return "Chat Rápido";
+            case PlayerLanguage.French:     return "Chat Rapide";
+            case PlayerLanguage.German:     return "Schnellchat";
+            case PlayerLanguage.Italian:    return "Chat Veloce";
+            case PlayerLanguage.Portuguese: return "Chat Rápido";
+            case PlayerLanguage.Russian:    return "Быстрый чат";
+            default: return "Quick Chat";
         }
     }
 

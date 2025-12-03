@@ -135,45 +135,66 @@ private final func RefreshInputHints(contactData: wref<ContactData>) -> Void {
     }
 }
 
+// Hooks into the Phone UI Initialization to add the "U" hint
 @wrapMethod(PhoneDialerLogicController)
 protected cb func OnInitialize() -> Bool {
+    // 1. Run the original game logic first
     wrappedMethod();
 
+    // 2. Get the Root Widget of the Phone UI
     let root = this.GetRootWidget() as inkCompoundWidget;
+    if !IsDefined(root) { return true; }
 
-    // Check if we already added it
+    // 3. Check if our hint already exists (prevent duplicates)
     if IsDefined(FindWidgetWithName(root, n"mod_quick_access_hint")) {
         return true;
     }
 
-    // Create Container
+    // 4. Create the Container (Horizontal Panel)
     let container = new inkHorizontalPanel();
     container.SetName(n"mod_quick_access_hint");
+    
+    // Anchor it to Bottom Right, but shift it left (Margin 450) so it doesn't overlap "Back/Select"
     container.SetAnchor(inkEAnchor.BottomRight);
     container.SetAnchorPoint(new Vector2(1.0, 1.0));
-    container.SetMargin(new inkMargin(0.0, 0.0, 400.0, 100.0)); 
+    container.SetMargin(new inkMargin(0.0, 0.0, 270.0, 1480.0)); 
     container.SetFitToContent(true);
     container.Reparent(root);
 
-    // Create 'U' Icon
-    let icon = new inkImage();
-    icon.SetAtlasResource(r"base\\gameplay\\gui\\common\\input\\icons_keyboard.inkatlas");
-    icon.SetTexturePart(n"kb_u");
-    icon.SetSize(new Vector2(64.0, 64.0));
-    icon.SetTintColor(new Color(Cast(94u), Cast(246u), Cast(255u), Cast(255u))); 
-    icon.SetVAlign(inkEVerticalAlign.Center);
-    icon.Reparent(container);
+    // 5. Create the [U] Key Icon
+    let keyIcon = new inkImage();
+    keyIcon.SetName(n"icon");
+    keyIcon.SetAtlasResource(r"base\\gameplay\\gui\\common\\input\\icons_keyboard.inkatlas");
+    keyIcon.SetTexturePart(n"kb_u"); // The "U" key texture
+    keyIcon.SetSize(new Vector2(64.0, 64.0));
+    keyIcon.SetVAlign(inkEVerticalAlign.Center);
+    keyIcon.SetTintColor(new Color(Cast(94u), Cast(246u), Cast(255u), Cast(255u))); 
+    keyIcon.Reparent(container);
 
-    // Create Text
+    // 6. Create the "QUICK CHAT" Label
     let label = new inkText();
-    label.SetText("Quick Chat");
+    label.SetName(n"label");
+    
+    // Use your localization function if available, or hardcode "Quick Chat"
+    // Note: We set the casing to UpperCase below, so "Quick Chat" becomes "QUICK CHAT" automatically
+    label.SetText(GetTextingSystem().GetQuickAccessString()); 
+    
     label.SetFontFamily("base\\gameplay\\gui\\fonts\\raj\\raj.inkfontfamily");
     label.SetFontStyle(n"Medium");
-    label.SetFontSize(38);
-    label.SetMargin(new inkMargin(10.0, 0.0, 0.0, 0.0));
-    label.SetTintColor(new Color(Cast(94u), Cast(246u), Cast(255u), Cast(255u)));
+    label.SetFontSize(40);
+    
+    // FORCE UPPERCASE (This makes it "QUICK CHAT" in all languages)
+    label.SetLetterCase(textLetterCase.UpperCase); 
+    
+    label.SetMargin(new inkMargin(15.0, 0.0, 0.0, 0.0)); // Spacing between Icon and Text
     label.SetVAlign(inkEVerticalAlign.Center);
+    
+    // Cyberpunk RED Color
+    label.SetTintColor(new Color(Cast(255u), Cast(97u), Cast(89u), Cast(255u)));
+    
     label.Reparent(container);
+
+    return true;
 }
 
 // Toggle flags when the phone is put away
