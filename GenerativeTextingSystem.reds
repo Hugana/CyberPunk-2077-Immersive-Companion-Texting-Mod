@@ -27,6 +27,8 @@ public class GenerativeTextingSystem extends ScriptableService {
     private let unread: Bool = false;
     private let disabled: Bool = false;
 
+    public let currentHoveredContact: String = "";
+    
     @runtimeProperty("ModSettings.mod", "Generative Texting")
     @runtimeProperty("ModSettings.displayName", "Player Gender")
     @runtimeProperty("ModSettings.description", "Controls the gender you will be referred to as.")
@@ -233,6 +235,7 @@ public class GenerativeTextingSystem extends ScriptableService {
             
             if this.isTyping { return; } 
             if this.disabled { return; }
+            if Equals(this.currentHoveredContact,""){return;}
 
             if this.chatOpen {
                 return;
@@ -247,11 +250,13 @@ public class GenerativeTextingSystem extends ScriptableService {
                 this.isTyping = false;
                 let message = this.GetInputText();
                 if Equals(StrLen(message), 0) {
+                    ConsoleLog(s"T IF Chat open: \(this.chatOpen), NPC selected: \(this.npcSelected)");
                     this.UpdateInputUi();
                     return;
                 }
                 this.BuildMessage(message, true, true);
             } else {
+                ConsoleLog(s"T Else Chat open: \(this.chatOpen), NPC selected: \(this.npcSelected)");
                 this.PlaySound(n"ui_menu_mouse_click");
             }
             return;
@@ -357,14 +362,13 @@ public class GenerativeTextingSystem extends ScriptableService {
         if this.npcSelected {
             this.callbackSystem.RegisterCallback(n"Input/Key", this, n"OnKeyInput", true)
                 .AddTarget(InputTarget.Key(EInputKey.IK_T))     
-                .AddTarget(InputTarget.Key(EInputKey.IK_U)) 
                 .AddTarget(InputTarget.Key(EInputKey.IK_C))
                 .AddTarget(InputTarget.Key(EInputKey.IK_R))
                 .AddTarget(InputTarget.Key(EInputKey.IK_Z))
                 .AddTarget(InputTarget.Key(EInputKey.IK_Enter))
                 .AddTarget(InputTarget.Key(EInputKey.IK_Escape))
-                .AddTarget(InputTarget.Key(EInputKey.IK_LeftMouse))
-                .AddTarget(InputTarget.Key(EInputKey.IK_U));    
+                .AddTarget(InputTarget.Key(EInputKey.IK_LeftMouse));
+                 
                 
             if NotEquals(this.lastActiveCharacter, this.character) {
                 this.ResetConversation(false);

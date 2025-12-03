@@ -20,10 +20,21 @@ protected cb func OnAllElementsSpawned() -> Bool {
     }
 }
 
+
+
 // Update the input hints based on the selected character
 @wrapMethod(PhoneDialerLogicController)
 private final func RefreshInputHints(contactData: wref<ContactData>) -> Void {
     wrappedMethod(contactData);
+
+
+    if IsDefined(GetTextingSystem()) {
+        if IsDefined(contactData) {
+            GetTextingSystem().currentHoveredContact = contactData.contactId;
+            ConsoleLog("Current Contact: " + GetTextingSystem().currentHoveredContact);
+        }
+    }
+
 
     if contactData != null {
         let contactName = contactData.contactId;
@@ -132,6 +143,8 @@ public final func Hide() -> Void {
     if IsDefined(GetTextingSystem()) {
         GetTextingSystem().ToggleNpcSelected(false);
         GetTextingSystem().ToggleIsTyping(false);
+        GetTextingSystem().currentHoveredContact = "";
+        ConsoleLog("Current Contact: " + GetTextingSystem().currentHoveredContact);
     }
 }
 
