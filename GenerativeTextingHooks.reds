@@ -135,6 +135,47 @@ private final func RefreshInputHints(contactData: wref<ContactData>) -> Void {
     }
 }
 
+@wrapMethod(PhoneDialerLogicController)
+protected cb func OnInitialize() -> Bool {
+    wrappedMethod();
+
+    let root = this.GetRootWidget() as inkCompoundWidget;
+
+    // Check if we already added it
+    if IsDefined(FindWidgetWithName(root, n"mod_quick_access_hint")) {
+        return true;
+    }
+
+    // Create Container
+    let container = new inkHorizontalPanel();
+    container.SetName(n"mod_quick_access_hint");
+    container.SetAnchor(inkEAnchor.BottomRight);
+    container.SetAnchorPoint(new Vector2(1.0, 1.0));
+    container.SetMargin(new inkMargin(0.0, 0.0, 400.0, 100.0)); 
+    container.SetFitToContent(true);
+    container.Reparent(root);
+
+    // Create 'U' Icon
+    let icon = new inkImage();
+    icon.SetAtlasResource(r"base\\gameplay\\gui\\common\\input\\icons_keyboard.inkatlas");
+    icon.SetTexturePart(n"kb_u");
+    icon.SetSize(new Vector2(64.0, 64.0));
+    icon.SetTintColor(new Color(Cast(94u), Cast(246u), Cast(255u), Cast(255u))); 
+    icon.SetVAlign(inkEVerticalAlign.Center);
+    icon.Reparent(container);
+
+    // Create Text
+    let label = new inkText();
+    label.SetText("Quick Chat");
+    label.SetFontFamily("base\\gameplay\\gui\\fonts\\raj\\raj.inkfontfamily");
+    label.SetFontStyle(n"Medium");
+    label.SetFontSize(38);
+    label.SetMargin(new inkMargin(10.0, 0.0, 0.0, 0.0));
+    label.SetTintColor(new Color(Cast(94u), Cast(246u), Cast(255u), Cast(255u)));
+    label.SetVAlign(inkEVerticalAlign.Center);
+    label.Reparent(container);
+}
+
 // Toggle flags when the phone is put away
 @wrapMethod(PhoneDialerLogicController)
 public final func Hide() -> Void {

@@ -393,6 +393,20 @@ public class GenerativeTextingSystem extends ScriptableService {
     public func GetUnread() -> Bool {
         return this.unread;
     }
+
+    // Helper to toggle the "U - Quick Chat" hint visibility
+    private func ToggleQuickAccessHint(visible: Bool) {
+        if IsDefined(this.defaultPhoneController) {
+            let root = this.defaultPhoneController.GetRootWidget() as inkCompoundWidget;
+            
+            // Find the widget we created in the Hooks file
+            let hint = FindWidgetWithName(root, n"mod_quick_access_hint");
+            
+            if IsDefined(hint) {
+                hint.SetVisible(visible);
+            }
+        }
+    }
     
     // Update the input UI based on the current state
     public func UpdateInputUi() {
@@ -430,6 +444,7 @@ public class GenerativeTextingSystem extends ScriptableService {
         if IsDefined(this.chatScrollController) {
             this.chatScrollController.SetScrollPosition(1.0);
         }
+        this.ToggleQuickAccessHint(false);
     }
 
     // Hide the mod chat UI
@@ -438,6 +453,8 @@ public class GenerativeTextingSystem extends ScriptableService {
         this.parent.ReorderChild(this.chatContainer, 14);
         this.chatContainer.RemoveAllChildren();
         this.chatOpen = false;
+        // NEW: Hide the Quick Access Hint
+        this.ToggleQuickAccessHint(true);
     }
 
     // Hide the default phone UI
@@ -1646,3 +1663,5 @@ public func GetUndoString() -> String {
         modMessengerSlotRoot.PlayAnimation(animDefRoot);
     }
 }
+
+
