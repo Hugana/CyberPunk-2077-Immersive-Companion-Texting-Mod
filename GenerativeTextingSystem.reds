@@ -25,9 +25,14 @@ public class GenerativeTextingSystem extends ScriptableService {
     private let typingIndicator: wref<inkFlex>;
     private let lastActiveCharacter: CharacterSetting = CharacterSetting.Panam;
     private let unread: Bool = false;
-    private let disabled: Bool = false;
+    private let disabled: Bool = false; 
 
+
+    public let isVanillaChatOpen: Bool = false;
+    
     public let currentHoveredContact: String = "";
+
+    public let vanillaPhoneController: wref<PhoneDialerLogicController>;
     
     @runtimeProperty("ModSettings.mod", "Generative Texting")
     @runtimeProperty("ModSettings.displayName", "Player Gender")
@@ -224,6 +229,13 @@ public class GenerativeTextingSystem extends ScriptableService {
         this.GetWidgetReferences(middleWidgetIndex - 1);
     }
 
+    // Helper to check if the Phone Menu is actually visible
+    private func IsVanillaPhoneActive() -> Bool {
+        let blackboardSystem = GameInstance.GetBlackboardSystem(GetGameInstance());
+        let blackboard = blackboardSystem.Get(GetAllBlackboardDefs().UI_ComDevice);
+        return blackboard.GetBool(GetAllBlackboardDefs().UI_ComDevice.ContactsActive);
+    }
+
     // Handle key input events
     private cb func OnKeyInput(event: ref<KeyInputEvent>) {
         if NotEquals(s"\(event.GetAction())", "IACT_Press") {
@@ -232,16 +244,23 @@ public class GenerativeTextingSystem extends ScriptableService {
 
         // Quick Access Hotkey (U)
         if Equals(s"\(event.GetKey())", "IK_U") {
-            
-            if this.isTyping { return; } 
+
+            if this.isTyping { return; }
             if this.disabled { return; }
-            if Equals(this.currentHoveredContact,""){return;}
+            
+            if !this.IsVanillaPhoneActive() { return; }
+
+            if this.isVanillaChatOpen { return; }
+
+            if Equals(this.currentHoveredContact, "") { return; }
 
             if this.chatOpen {
-                return;
-            } else {
-                this.HidePhoneUi(); 
+                return; 
             }
+
+            this.HidePhoneUi();
+            this.ToggleNpcSelected(true);
+            
             return;
         }
 
