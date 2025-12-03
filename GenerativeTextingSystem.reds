@@ -57,6 +57,14 @@ public class GenerativeTextingSystem extends ScriptableService {
     public let aiModel: LLMProvider = LLMProvider.StableHorde;
 
     @runtimeProperty("ModSettings.mod", "Generative Texting")
+    @runtimeProperty("ModSettings.displayName", "Conversation Type")
+    @runtimeProperty("ModSettings.description", "Controls the explicit nature of the conversation.")
+    @runtimeProperty("ModSettings.displayValues.Normal", "Normal (Safe for Work)")
+    @runtimeProperty("ModSettings.displayValues.NSFW", "NSFW (Romance/Intimacy)")
+    @runtimeProperty("ModSettings.displayValues.NSFW_Hard", "NSFW Hard (Explicit/Uncensored)")
+    public let conversationType: ConversationType = ConversationType.Normal;
+
+    @runtimeProperty("ModSettings.mod", "Generative Texting")
     @runtimeProperty("ModSettings.displayName", "Language")
     @runtimeProperty("ModSettings.description", "Controls the language of the generated text. Works more consistently with ChatGPT.")
     @runtimeProperty("ModSettings.displayValues.English", "English")
@@ -149,10 +157,6 @@ public class GenerativeTextingSystem extends ScriptableService {
         this.callbackSystem = GameInstance.GetCallbackSystem();
         this.callbackSystem.UnregisterCallback(n"Input/Key", this, n"OnKeyInput");
         this.callbackSystem.UnregisterCallback(n"Input/Axis", this, n"OnAxisInput");
-
-
-        
-
         ModSettings.RegisterListenerToClass(this);
         this.GetWidgetReferences(54);
         this.InitializeDefaultPhoneController();
@@ -227,19 +231,12 @@ public class GenerativeTextingSystem extends ScriptableService {
         // Quick Access Hotkey (U)
         if Equals(s"\(event.GetKey())", "IK_U") {
             
-            // 1. Safety / Disabled Check
-            if this.disabled {
-                ConsoleLog("Generative Texting System is disabled.");
-                return;
-            }
+            if this.isTyping { return; } 
+            if this.disabled { return; }
 
-            // 2. Toggle Logic
             if this.chatOpen {
-                this.npcSelected = false;
-                this.chatOpen = false;
-                this.ShowPhoneUI(); 
+                return;
             } else {
-                this.ToggleNpcSelected(true); 
                 this.HidePhoneUi(); 
             }
             return;
@@ -268,6 +265,7 @@ public class GenerativeTextingSystem extends ScriptableService {
             if (!this.chatOpen && this.npcSelected) {
                 this.HidePhoneUi();
             } else {
+                this.chatOpen = true;
                 ConsoleLog(s"Chat open: \(this.chatOpen), NPC selected: \(this.npcSelected)");
                 return;
             }
