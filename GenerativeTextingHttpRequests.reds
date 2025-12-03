@@ -253,19 +253,19 @@ public class HttpRequestSystem extends ScriptableSystem {
     let eventManagerMessage = GameInstance.GetScriptableSystemsContainer(GetGameInstance()).Get(n"ContextEventManager") as ContextEventManager;
 
     // Parsing the message to and replacing action 
-    if StrContains(processedText, "[ACTION : TRANSFER_100]") {
+    if StrContains(processedText, "[ACTION:TRANSFER_100]") {
         eventManagerMessage.TransferMoneyToPlayer(100);
-        processedText = StrReplace(processedText, "[ACTION: TRANSFER_100]", "");
+        processedText = StrReplace(processedText, "[ACTION:TRANSFER_100]", "");
     }
     
-    if StrContains(processedText, "[ACTION : TRANSFER_1000]") {
+    if StrContains(processedText, "[ACTION:TRANSFER_1000]") {
         eventManagerMessage.TransferMoneyToPlayer(1000);
-        processedText = StrReplace(processedText, "[ACTION: TRANSFER_1000]", "");
+        processedText = StrReplace(processedText, "[ACTION:TRANSFER_1000]", "");
     }
 
-    if StrContains(processedText, "[ACTION : TRANSFER_5000]") {
+    if StrContains(processedText, "[ACTION:TRANSFER_5000]") {
         eventManagerMessage.TransferMoneyToPlayer(5000);
-        processedText = StrReplace(processedText, "[ACTION: TRANSFER_5000]", "");
+        processedText = StrReplace(processedText, "[ACTION:TRANSFER_5000]", "");
     }
     
     // More processing
@@ -516,7 +516,7 @@ public class HttpRequestSystem extends ScriptableSystem {
     }*/
 
     // 3. Add Player Input
-    promptText += "V: " + playerInput + " <|eot_id|><|start_header_id|>assistant<|end_header_id|>\n\n" + GetCharacterLocalizedName(GetTextingSystem().character) + ": ";
+    promptText += "V: " + playerInput + " <|eot_id|><|start_header_id|>character<|end_header_id|>\n\n" + GetCharacterLocalizedName(GetTextingSystem().character) + ": ";
 
     return promptText;
   }
