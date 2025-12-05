@@ -400,9 +400,6 @@ public class HttpRequestSystem extends ScriptableSystem {
     if ArraySize(this.vMessages) > 20 {
       ArrayErase(this.vMessages, 0);
     }
-    if ArraySize(this.npcResponses) > 20 {
-      ArrayErase(this.npcResponses, 0);
-    }
   }
 
   // Reset the conversation history
@@ -613,24 +610,26 @@ public class HttpRequestSystem extends ScriptableSystem {
     return requestDTO;
   }
 
-  private func BuildOpenAIMessages(playerMessage: String) -> ref<OpenAIRequestDTO> {
-    let requestDTO = new OpenAIRequestDTO();
+  
+  // Change return type to StandardOpenAIRequestDTO
+private func BuildOpenAIMessages(playerMessage: String) -> ref<StandardOpenAIRequestDTO> {
+    let requestDTO = new StandardOpenAIRequestDTO(); // Use the clean class
     requestDTO.model = "gpt-4o-mini";
     
     let messagesArray: array<ref<OpenAIMessageDTO>>;
 
-    // 1. System Message (Contains the Instructions)
+    // 1. System Message
     let systemMessage = new OpenAIMessageDTO();
     systemMessage.role = "system";
     systemMessage.content = this.GetSystemPrompt();
     ArrayPush(messagesArray, systemMessage);
 
-    // 2. User Message (Contains ONLY History + Input)
+    // 2. User Message
     let userMessage = new OpenAIMessageDTO();
     userMessage.role = "user";
-
-    // FIX: Use the new function so we don't duplicate the prompt
-    userMessage.content = this.GeneratePrompt(playerMessage);
+    
+    // Use GenerateConversationString to avoid duplicating system prompt
+    userMessage.content = this.GenerateConversationString(playerMessage);
     
     ArrayPush(messagesArray, userMessage);
 
@@ -638,6 +637,12 @@ public class HttpRequestSystem extends ScriptableSystem {
     return requestDTO;
   }
 } 
+
+
+public class StandardOpenAIRequestDTO {
+  public let model: String;
+  public let messages: array<ref<OpenAIMessageDTO>>;
+}
 
 public class TextGenerationRequestDTO {
     public let prompt: String;
