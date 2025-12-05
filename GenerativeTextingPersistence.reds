@@ -44,8 +44,6 @@ public class JsonReaderSystem extends ScriptableSystem {
     /// JSON Reading Logic ///  
 
     private func ReadAndLogJson() {  
-        // 1. Get the unique storage for this mod using the Red File System API [1]  
-        // We use 'this.' to resolve the constant within the function [1]  
         let storage: ref<FileSystemStorage> = FileSystem.GetStorage(this.MOD_STORAGE_NAME);   
         
         if storage == null {  
@@ -53,7 +51,6 @@ public class JsonReaderSystem extends ScriptableSystem {
             return;  
         }  
 
-        // 2. Get the file handle (path is relative to the storage folder) [1]  
         let file = storage.GetFile(this.CONFIG_FILE_NAME);   
         
         if!IsDefined(file) {  
@@ -61,10 +58,8 @@ public class JsonReaderSystem extends ScriptableSystem {
             return;  
         }  
 
-        // 3. Read and parse the JSON content into a JsonVariant [1]  
         let json = file.ReadAsJson();   
 
-        // 4. Validate parsing success [1]  
         if!IsDefined(json) {  
             FTLogError(s"ReadAndLogJson: FATAL ERROR: Failed to parse JSON file: \(this.CONFIG_FILE_NAME). Check JSON syntax for errors.");   
             return;  
@@ -72,16 +67,13 @@ public class JsonReaderSystem extends ScriptableSystem {
 
         
 
-        // 5. Check the root element type (optional, but good practice) [1]  
         if!json.IsObject() {  
             FTLogError(s"ReadAndLogJson: ERROR: Root of the JSON document is not an object.");   
             return;  
         }  
 
-        // 6. Convert the validated JsonVariant structure back into a formatted string [1]  
         let jsonContent: String = json.ToString("    ");  
 
-        // 7. Print to log file (r6/logs/redscript_rCURRENT.log)  
         FTLog(s"----- START JSON CONTENT for \(this.CONFIG_FILE_NAME) -----");  
         FTLog(jsonContent);   
         FTLog(s"----- END JSON CONTENT -----");  
@@ -98,8 +90,6 @@ public class JsonReaderSystem extends ScriptableSystem {
 
         
         let status = file.WriteJson(json);  
-        // Same as:  
-        // let status = file.WriteText(json.ToString());  
 
         if !status {  
         FTLogError(s"Failed to write in file '\(file.GetFilename())'.");  
